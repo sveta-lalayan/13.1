@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "13-1"
+version = "0.1.0"
+description = ""
+authors = ["Sveta Lalayan <lalayan-svetlana@list.ru>"]
+readme = "README.md"
+packages = [{include = "13"}]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pytest = "^8.1.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

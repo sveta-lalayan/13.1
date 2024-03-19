@@ -2,21 +2,22 @@ class Category:
     total_amount_of_categories = 0
     amount_of_unique_goods = 0
 
-    def __init__(self, name, description, goods):
-        self.name = str(name)
-        self.description = str(description)
-        self.goods = list(goods)
-        self.total_amount_of_categories = 1
+    def __init__(self, name: str, description: str, goods: list):
+        self.name = name
+        self.description = description
+        self.goods = goods
+
 
         Category.total_amount_of_categories += 1
+        Category.amount_of_unique_goods += len(self.goods)
 
 
 class Products:
 
-    def __init__(self,product_name, product_description, price, quantity):
+    def __init__(self,product_name: str, product_description: str, price: float, quantity: int):
         self.product_name = product_name
         self.product_description = product_description
-        self.price = float(price)
+        self.price = price
         self.quantity = quantity
 
 

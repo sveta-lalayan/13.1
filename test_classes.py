@@ -33,3 +33,9 @@ def check_correct_init_number():
 def test_total_number(check_correct_init_number):
     assert check_correct_init_number.amount_of_unique_goods == 6
     assert check_correct_init_number.total_amount_of_categories == 2
+
+
+
+
+
+

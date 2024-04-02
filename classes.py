@@ -1,28 +1,200 @@
-class Category:
-    total_amount_of_categories = 0
-    amount_of_unique_goods = 0
+from abc import ABC, abstractmethod
+class MixinRepr:
 
-    def __init__(self, name: str, description: str, goods: list):
-        self.name = name
-        self.description = description
-        self.goods = goods
+    def __init__(self, *args, **kwargs):
+        print(self.__repr__())
 
-
-        Category.total_amount_of_categories += 1
-        Category.amount_of_unique_goods += len(self.goods)
+    def __repr__(self):
+        return f'{self.__class__.__name__}, {self.__dict__}'
 
 
-class Products:
+class AbstractCategoryOrder(ABC):
+    """Это абстрактный класс для категорий и заказов"""
 
-    def __init__(self,product_name: str, product_description: str, price: float, quantity: int):
-        self.product_name = product_name
-        self.product_description = product_description
-        self.price = price
+    product = str
+    quantity = int
+
+    @abstractmethod
+    def __init__(self, product, quantity):
+        self.product = product
         self.quantity = quantity
 
+    @abstractmethod
+    def get_total_cost(self):
+        pass
 
-#i1 = Category('orange', 'beautiful', ["blankets, cushions"])
-#print(i1.goods)
 
-#p2 = Products("cushions", "soft", 2000, 3)
-#print(p2.price)
+class Order(AbstractCategoryOrder):
+    """Это класс для заказа"""
+
+    def __init__(self, product, quantity):
+        super().__init__(product, quantity)
+
+    def get_product(self):
+        return self.product
+
+    def get_quantity(self):
+        return self.quantity
+
+    def get_total_cost(self):
+        return self.product * self.quantity
+
+
+class Category(AbstractCategoryOrder):
+    """Это класс для категории"""
+
+    description: str
+    goods: list
+
+    total_numbers_of_category = 0
+    unique_goods = 0
+
+    def __init__(self, name, description, goods, product):
+        self.name = name
+        self.description = description
+        self.__goods = goods
+        super().__init__(name, product)
+
+        Category.total_numbers_of_category += 1
+        Category.unique_goods += 1
+
+    @property
+    def goods(self):
+        return self.__goods
+
+    def add_goods(self, product):
+        if isinstance(product, self.__class__) and isinstance(self, product.__class__):
+            self.__goods.append(product)
+        raise TypeError
+
+    @property
+    def get_product(self):
+        current_list = []
+        for product in self.__goods:
+            current_list.append(f'{product.name}, {product.price} руб. Остаток: {product.quantity} шт.')
+        return current_list
+
+    def __repr__(self):
+        return f'Category({self.name}, {self.description}, {self.__goods})'
+
+    def __len__(self):
+        product_counter = 0
+        for product in self.__goods:
+            product_counter += product.quantity
+        return product_counter
+
+    def __str__(self):
+        return f'Название категории {self.name}, количество продуктов: {len(self)} шт.'
+
+    def get_total_cost(self):
+        return self.product * self.quantity
+
+
+class AbstractProduct(ABC):
+
+    @property
+    @abstractmethod
+    def price(self):
+        pass
+
+    @price.setter
+    @abstractmethod
+    def price(self, new_price):
+        pass
+
+    @abstractmethod
+    def get_product_price(self):
+        pass
+
+    @classmethod
+    @abstractmethod
+    def add_new_product(cls, product_data, list_of_products=None):
+        pass
+
+
+class Product(MixinRepr, AbstractProduct):
+    """Классы продуктов"""
+    name: str
+    description: str
+    price: float
+    quantity: int
+    color: str
+
+    def __init__(self, name, description, price, quantity, color):
+        self.name = name
+        self.description = description
+        self.__price = price
+        self.quantity = quantity
+        self.color = color
+        super().__init__()
+
+    @property
+    def price(self):
+        return self.__price
+
+    @price.setter
+    def price(self, new_price):
+        if new_price <= 0:
+            print('Цена введена некорректно')
+        elif new_price < self.__price:
+            user_answer = input('Цена понизилась. Установить эту цену? (y - да, n - нет)')
+            if user_answer == 'y':
+                self.__price = new_price
+            else:
+                print('Цена осталась прежней')
+        else:
+            self.__price = new_price
+
+    def get_product_price(self):
+        return self.price
+
+    @classmethod
+    def add_new_product(cls, product_data, list_of_products=None):
+        name = product_data['name']
+        description = product_data['description']
+        price = product_data['price']
+        quantity = product_data['quantity']
+        color = product_data
+        if list_of_products:
+            for product in list_of_products:
+                if product.name == name:
+                    product.quantity += quantity
+                    if product.price < price:
+                        product.price = price
+                    return product
+
+
+        new_product = cls(name, description, price, quantity, color)
+        return new_product
+
+    def __str__(self):
+        return f'{self.name}, {self.price} руб. Остаток: {self.quantity} шт.'
+
+    def __add__(self, other):
+        if isinstance(other, self.__class__) and isinstance(self, other.__class__):
+            return self.quantity * self.__price + other.quantity * other.__price
+        raise TypeError
+
+
+class Smartphone(Product):
+    performance: float
+    model: str
+    ram: float
+
+    def __init__(self, name, description, price, quantity, performance, model, ram, color):
+        self.performance = performance
+        self.model = model
+        self.ram = ram
+        super().__init__(name, description, price, quantity, color)
+
+
+
+class LawnGrass(Product):
+    """Это класс газонной травы"""
+    country_origin: str
+    germination_period: str
+
+    def __init__(self, name, description, price, quantity, country_origin, germination_period, color):
+        self.country_origin = country_origin
+        self.germination_period = germination_period
+        super().__init__(name, description, price, quantity, color)

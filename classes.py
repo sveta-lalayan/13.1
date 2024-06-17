@@ -61,7 +61,8 @@ class Products:
         else:
             self.__price = new_price
 
-    def delete_price(self):
+    @price.deleter
+    def new_price(self):
         del self.__price
 
     def get_product_price(self):
